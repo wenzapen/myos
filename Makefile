@@ -50,7 +50,7 @@ src/boot/%.o:src/boot/%.asm
 	nasm -f elf32 $< -o $@
 
 bochs: kernel.iso
-	bochs -f bochsrc.txt -q
+	bochs -f bochsrc.txt -rc bochsconfig.txt -q
 qemu: kernel.elf
 	qemu-system-i386 -kernel kernel.elf
 
