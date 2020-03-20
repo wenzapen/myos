@@ -3,6 +3,9 @@
 
 #include "../common/types.h"
 
+#define MAX_ROW 25
+#define MAX_COL 80
+
 void outb(u16_t port, u8_t data);
 u8_t inb(u16_t port);
 void fb_set_cursor(u16_t position);

@@ -2,10 +2,19 @@
 
 LD = i686-elf-ld
 CC = i686-elf-gcc
-CSOURCES = $(wildcard src/kernel/*.c src/boot/*.c)
-SSOURCES = $(wildcard src/kernel/*.s src/boot/*.s)
-CHEADERS = $(wildcard src/kernel/*.h src/boot/*.h)
-OBJ = ${C_SOURCES:.c=.o S_SOURCES:.s=.o}
+CSOURCES=$(wildcard src/kernel/*.c \
+		src/boot/*.c \
+		src/drivers/*c \
+		src/common/*.c)
+SSOURCES=$(wildcard src/kernel/*.s) 
+
+CHEADERS=$(wildcard src/kernel/*.h \
+		src/boot/*.h \
+		src/drivers/*.h \
+		src/common/*.h)
+OBJ=${CSOURCES:.c=.o}
+OBJS=${SSOURCES:.S=.O}
+OBJ += ${OBJS}
 CFLAGS=-nostdlib -nostdinc -fno-builtin -fno-stack-protector -g -ffreestanding
 
 
@@ -28,8 +37,8 @@ kernel.iso: kernel.elf
 	grub-mkrescue --output=kernel.iso iso
 	rm -rf iso
 
-kernel.elf: src/boot/loader.o
-	${LD} -T linker.ld -melf_i386 $^ -o $@
+kernel.elf: src/boot/loader.o ${OBJ} 
+	${LD} -T linker.ld -melf_i386 -o $@ $^
 
 %.o:%.s
 	nasm -f elf32 $< -o $@
@@ -37,12 +46,14 @@ kernel.elf: src/boot/loader.o
 %.o:%.c ${CHEADERS}
 	${CC} ${CFLAGS} -c $< -o $@
 
-src/boot/%.o:src/boot/%.s
+src/boot/%.o:src/boot/%.asm
 	nasm -f elf32 $< -o $@
 
 bochs: kernel.iso
 	bochs -f bochsrc.txt -q
+qemu: kernel.elf
+	qemu-system-i386 -kernel kernel.elf
 
 clean:
 	rm -rf *.elf *.o iso
-	rm -rf src/kernel/*.o src/boot/*.o	
+	rm -rf src/kernel/*.o src/boot/*.o src/drivers/*.o src/common/*.o	

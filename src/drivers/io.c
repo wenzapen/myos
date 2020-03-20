@@ -6,8 +6,6 @@
 #define FB_HIGH_BYTE 14
 #define FB_LOW_BYTE 15
 #define WHITE_ON_BLACK 0x0F
-#define MAX_ROW 25
-#define MAX_COL 80
 
 u16_t fb_get_cursor() {
     u16_t pos;
@@ -60,7 +58,7 @@ void outb(u16_t port, u8_t data) {
 
 }
 
-u8_t inb(U16_t port) {
+u8_t inb(u16_t port) {
     u8_t data;
     asm volatile("in %%dx, %%al" : "=a"(data) : "d"(port));
     return data;
