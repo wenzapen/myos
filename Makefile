@@ -1,21 +1,22 @@
 
-
+GDB = gdb
 LD = i686-elf-ld
 CC = i686-elf-gcc
 CSOURCES=$(wildcard src/kernel/*.c \
 		src/boot/*.c \
 		src/drivers/*c \
 		src/common/*.c)
-SSOURCES=$(wildcard src/kernel/*.s) 
+SSOURCES=$(wildcard src/kernel/*.s \
+		src/boot/*.s) 
 
 CHEADERS=$(wildcard src/kernel/*.h \
 		src/boot/*.h \
 		src/drivers/*.h \
 		src/common/*.h)
 OBJ=${CSOURCES:.c=.o}
-OBJS=${SSOURCES:.S=.O}
+OBJS=${SSOURCES:.s=.o}
 OBJ += ${OBJS}
-CFLAGS=-nostdlib -nostdinc -fno-builtin -fno-stack-protector -g -ffreestanding
+CFLAGS=-g -ffreestanding
 
 
 
@@ -54,6 +55,9 @@ bochs: kernel.iso
 qemu: kernel.elf
 	qemu-system-i386 -kernel kernel.elf
 
+qemu-debug: kernel.elf
+	qemu-system-i386 -kernel kernel.elf -s &
+	${GDB} -ex "target remote localhost:1234" -ex "symbol-file kernel.elf"
 clean:
 	rm -rf *.elf *.o iso
 	rm -rf src/kernel/*.o src/boot/*.o src/drivers/*.o src/common/*.o	
