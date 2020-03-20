@@ -2,11 +2,11 @@
 
 LD = i686-elf-ld
 CC = i686-elf-gcc
-C_SOURCES = $(wildcard src/kernel/*.c src/boot/*.c)
-S_SOURCES = $(wildcard src/kernel/*.s src/boot/*.s)
-C_HEADERS = $(wildcard src/kernel/*.h src/boot/*.h)
+CSOURCES = $(wildcard src/kernel/*.c src/boot/*.c)
+SSOURCES = $(wildcard src/kernel/*.s src/boot/*.s)
+CHEADERS = $(wildcard src/kernel/*.h src/boot/*.h)
 OBJ = ${C_SOURCES:.c=.o S_SOURCES:.s=.o}
-
+CFLAGS=-nostdlib -nostdinc -fno-builtin -fno-stack-protector -g -ffreestanding
 
 
 
@@ -33,6 +33,9 @@ kernel.elf: src/boot/loader.o
 
 %.o:%.s
 	nasm -f elf32 $< -o $@
+
+%.o:%.c ${CHEADERS}
+	${CC} ${CFLAGS} -c $< -o $@
 
 src/boot/%.o:src/boot/%.s
 	nasm -f elf32 $< -o $@
