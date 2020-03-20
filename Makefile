@@ -28,12 +28,18 @@ kernel.iso: kernel.elf
 	grub-mkrescue --output=kernel.iso iso
 	rm -rf iso
 
-kernel.elf: loader.o
+kernel.elf: src/boot/loader.o
 	${LD} -T linker.ld -melf_i386 $^ -o $@
 
+%.o:%.s
+	nasm -f elf32 $< -o $@
+
+src/boot/%.o:src/boot/%.s
+	nasm -f elf32 $< -o $@
+
 bochs: kernel.iso
-	/usr/loca/bochs3/bin/bochs -f bochsrc.txt -q
+	bochs -f bochsrc.txt -q
 
 clean:
-	rm -rf *.elf *.o
+	rm -rf *.elf *.o iso
 	rm -rf src/kernel/*.o src/boot/*.o	
