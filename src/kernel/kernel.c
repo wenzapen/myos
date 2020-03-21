@@ -1,5 +1,6 @@
 #include "../common/utils.h"
 #include "../boot/gdt.h"
+#include "../drivers/interrupt.h"
 
 int main() {
 /*    for(int i=0; i < 100; i++)
