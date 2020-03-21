@@ -24,8 +24,11 @@ void print_decimal(s32_t n) {
     negative = 1;
     }
     int i=0;
-    while(n/10 != 0) {
-	str[i] = n%10;
+    str[i] = n%10+'0';
+    i++;
+    n /= 10;
+    while(n != 0) {
+	str[i] = n%10+'0';
 	n /= 10;
 	i++;
     }

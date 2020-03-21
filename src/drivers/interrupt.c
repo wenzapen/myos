@@ -1,11 +1,65 @@
 #include "interrupt.h"
 #include "../common/utils.h"
+#include "io.h"
+
+#define CPUID_FLAG_MSR (1 << 5)
+#define CPUID_FLAG_APIC (1 << 9)
 
 idt_t idt;
 idt_entry_t idt_entries[256];
 interrupt_handler_t interrupt_handler_entries[256];
 
 extern void load_idt(u32_t);
+extern void _disable_lapic();
+
+static void cpuid(int code, u32_t *a, u32_t *d) {
+    asm volatile("cpuid":"=a"(*a),"=d"(*d):"a"(code):"ecx","ebx");
+}
+
+static void disable_local_apic() {
+    u32_t eax;
+    u32_t edx;
+    cpuid(1, &eax, &edx);
+
+    if(edx & CPUID_FLAG_APIC) {
+	print_string("Detected LAPIC, will disable it.\n");
+	if(edx & CPUID_FLAG_MSR) {
+	    _disable_lapic();
+	    print_string("LAPIC is disabled.\n");
+	} else {
+	    print_string("No MSR detected.\n");
+	}
+    }
+
+}
+
+
+static void init_pic() {
+
+//    disable_local_apic();  
+    outb(PIC1_PORT_COMMAND, 0x11);
+    outb(PIC2_PORT_COMMAND, 0x11);
+    outb(PIC1_PORT_DATA, 0x20);
+    outb(PIC2_PORT_DATA, 0x28);
+    outb(PIC1_PORT_DATA, 0x04);
+    outb(PIC2_PORT_DATA, 0x02);
+    outb(PIC1_PORT_DATA, 0x01);
+    outb(PIC2_PORT_DATA, 0x01);
+    outb(PIC1_PORT_DATA, 0x0);
+    outb(PIC2_PORT_DATA, 0x0);
+    asm volatile("sti");
+}
+
+static void pic_acknowledge(u32_t int_no) {
+    if(int_no < PIC1_START_INTERRUPT || int_no > PIC2_END_INTERRUPT) {
+	return;
+    }
+    if(int_no < PIC2_START_INTERRUPT) {
+	outb(PIC1_PORT_COMMAND, PIC_ACK);
+    } else {
+	outb(PIC2_PORT_COMMAND, PIC_ACK);
+    }
+}
 
 static void idt_set_gate(u32_t n,u32_t base, u16_t segment,u8_t flags) {
     idt_entries[n].base_low = base & 0xffff;
@@ -18,6 +72,8 @@ static void idt_set_gate(u32_t n,u32_t base, u16_t segment,u8_t flags) {
 void init_idt() {
     idt.limit = sizeof(idt_entry_t)*256 - 1;
     idt.base = (u32_t)&idt_entries;
+
+    init_pic();
 
     idt_set_gate( 0,  (u32_t)isr0, 0x08, 0x8E);
     idt_set_gate( 1,  (u32_t)isr1, 0x08, 0x8E);
@@ -78,18 +134,19 @@ void isr_handler(registers_t regs) {
     } else {
 	print_string("Isr : ");
 	print_decimal(regs.int_no);
-	print_string(" is not handlered\n");
+	print_string(" is not handled\n");
     }
 }
 
 void irq_handler(registers_t regs) {
+    pic_acknowledge(regs.int_no);
     if(interrupt_handler_entries[regs.int_no] != 0) {
 	interrupt_handler_t handler = interrupt_handler_entries[regs.int_no];
 	handler(regs);
     } else {
 	print_string("Interrupt : ");
 	print_decimal(regs.int_no);
-	print_string(" is not handlered\n");
+	print_string(" is not handled\n");
     }
 
 }

@@ -54,10 +54,10 @@ src/boot/%.o:src/boot/%.asm
 bochs: kernel.iso
 	bochs -f bochsrc.txt -rc bochsconfig.txt -q
 qemu: kernel.elf
-	qemu-system-i386 -kernel kernel.elf
+	qemu-system-i386 -kernel kernel.elf -monitor stdio
 
 qemu-debug: kernel.elf
-	qemu-system-i386 -kernel kernel.elf -s &
+	qemu-system-i386 -kernel kernel.elf -s -monitor stdio &
 	${GDB} -ex "target remote localhost:1234" -ex "symbol-file kernel.elf"
 clean:
 	rm -rf *.elf *.o iso

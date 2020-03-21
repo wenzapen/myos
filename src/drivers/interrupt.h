@@ -2,6 +2,15 @@
 #define INTERRUPT_H
 #include "../common/types.h"
 
+#define PIC1_PORT_COMMAND 0x20
+#define PIC1_PORT_DATA 0x21
+#define PIC2_PORT_COMMAND 0xA0
+#define PIC2_PORT_DATA 0xA1
+#define PIC1_START_INTERRUPT 0x20
+#define PIC2_START_INTERRUPT 0x28
+#define PIC2_END_INTERRUPT PIC2_START_INTERRUPT + 7
+#define PIC_ACK 0x20
+
 struct idt_struct {
     u16_t limit;
     u32_t base;
