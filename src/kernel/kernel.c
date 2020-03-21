@@ -2,6 +2,8 @@
 #include "../boot/gdt.h"
 #include "../drivers/interrupt.h"
 #include "../drivers/timer.h"
+#include "../drivers/keyboard.h"
+
 
 int main() {
 /*    for(int i=0; i < 100; i++)
@@ -15,6 +17,7 @@ int main() {
     init_gdt();
     init_idt();
     init_timer(50);
+    init_keyboard();
     print_string("Welcome to my os!\n");
     print_decimal(1);
     print_string("\n");
@@ -23,6 +26,7 @@ int main() {
     print_decimal(32);
     print_string("\n");
     asm volatile("int $3");
+    while(1) ;
     return 1;
 
 }
