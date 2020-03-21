@@ -15,3 +15,30 @@ void print_string(char* str) {
     }
     fb_set_cursor(pos);
 }
+
+void print_decimal(s32_t n) {
+    char str[32];
+    int negative = 0;
+    if(n < 0) {
+    n = -n;
+    negative = 1;
+    }
+    int i=0;
+    while(n/10 != 0) {
+	str[i] = n%10;
+	n /= 10;
+	i++;
+    }
+    char str2[32];
+    i--;
+    int j = 0;
+    if(negative == 1) {
+	str2[j] = '-';
+	j++;
+    }
+    while(i>=0) {
+	str2[j++] = str[i--];
+    } 
+    str2[j] = '\0';
+    print_string(str2);
+}

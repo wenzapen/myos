@@ -4,7 +4,7 @@
 #include "types.h"
 
 void print_string(char *str);
-void print_decimal(u32_t n);
+void print_decimal(s32_t n);
 
 
 #endif

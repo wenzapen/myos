@@ -7,7 +7,8 @@ CSOURCES=$(wildcard src/kernel/*.c \
 		src/drivers/*c \
 		src/common/*.c)
 SSOURCES=$(wildcard src/kernel/*.s \
-		src/boot/*.s) 
+		src/boot/*.s \
+		src/drivers/*.s) 
 
 CHEADERS=$(wildcard src/kernel/*.h \
 		src/boot/*.h \

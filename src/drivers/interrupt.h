@@ -15,7 +15,7 @@ struct idt_entry_struct {
     u8_t flags;
     u16_t base_high;
 } __attribute__((packed));
-typedef struct idt_entry_struce idt_entry_t;
+typedef struct idt_entry_struct idt_entry_t;
 
 typedef struct registers_struct {
     u32_t ds;

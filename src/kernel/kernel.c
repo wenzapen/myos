@@ -13,6 +13,8 @@ int main() {
 */
     init_gdt();
     print_string("Welcome to my os!\n");
+    print_decimal(1);
+    print_decimal(-1);
     return 1;
 
 }
