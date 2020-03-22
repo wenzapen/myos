@@ -45,3 +45,37 @@ void print_decimal(s32_t n) {
     str2[j] = '\0';
     print_string(str2);
 }
+
+void print_hex(s32_t n) {
+    char str[32];
+    int i=0;
+    int h=0; 
+    if(n==0) {
+	str[0]='0';
+	str[1]='x';
+	str[2]='0';
+	print_string(str);
+	return;
+    }
+    while(n != 0) {
+	h = n & 0xf;
+	if(h < 10) {
+	    str[i] = h + '0';
+	} else {
+	    str[i] = h - 10 + 'A';
+	}
+	n = (n >> 4); 
+	i++;
+    }
+    char str2[32];
+    i--;
+    int j = 0;
+    str2[0] = '0';
+    str2[1] = 'x';
+    j += 2;
+    while(i>=0) {
+	str2[j++] = str[i--];
+    } 
+    str2[j] = '\0';
+    print_string(str2);
+}

@@ -34,6 +34,8 @@ static void kb_callback(registers_t regs) {
     if(kb_ctrl_read_status() & KB_CTRL_STATS_MASK_OUT_BUF == 1) {
 	code = kb_enc_read_buf();
 	print_string("Scancode is : ");
+	print_hex(code);
+	print_string("  ");
 	print_decimal(code);
 	print_string("\n");	
     } 
