@@ -7,7 +7,7 @@ u32_t tick = 0;
 
 static void timer_callback(registers_t regs) {
     tick++;
-    if(tick < 100 ) {
+    if(tick < 5 ) {
         print_string("Tick: ");
         print_decimal(tick);
         print_string("\n");

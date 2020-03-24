@@ -22,7 +22,7 @@ static void kb_callback(registers_t regs);
 
 void init_keyboard() {
     register_interrupt_handler(33, &kb_callback);
-    kb_set_cap_led(1);
+//    kb_set_cap_led(1);
 
 }
 
