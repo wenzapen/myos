@@ -2,6 +2,7 @@
 #define PAGING_H
 
 #include "../common/types.h"
+#include "../drivers/interrupt.h"
 
 typedef struct page {
     u32_t present : 1;

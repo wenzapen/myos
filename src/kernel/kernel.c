@@ -4,7 +4,7 @@
 #include "../drivers/timer.h"
 #include "../drivers/keyboard.h"
 #include "multiboot.h"
-
+#include "paging.h"
 
 int main(multiboot_info_t *multiboot_info) {
 
@@ -24,6 +24,7 @@ int main(multiboot_info_t *multiboot_info) {
     call_module_t start_program = (call_module_t)module_addr;
     
 //    start_program();
+    init_paging();
 
     print_decimal(1);
     print_string("\n");
@@ -32,6 +33,8 @@ int main(multiboot_info_t *multiboot_info) {
     print_decimal(32);
     print_string("\n");
     asm volatile("int $3");
+    u32_t *p = (u32_t*)0xA0000000;
+    u32_t do_page_fault = *p;
     while(1) ;
     return 1;
 
