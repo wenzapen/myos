@@ -2,6 +2,7 @@
 #define KMALLOC_H
 
 #include "../common/types.h"
+#include "../common/ordered_array.h"
 
 #define KHEAP_START 0xc0000000
 #define KHEAP_INITIAL_SIZE 0x100000
@@ -29,7 +30,7 @@ typedef struct {
     u8_t readonly;
 } heap_t;
 
-heap_t *create_heap(u32_t start, u32_t end, u32_t max, u8_t supervisor, u8_t readonly);
+heap_t *create_heap(u32_t start_addr, u32_t end_addr, u32_t max_addr, u8_t supervisor, u8_t readonly);
 void *alloc(u32_t size, u8_t page_align, heap_t *heap);
 void free(void *p, heap_t *heap);
 

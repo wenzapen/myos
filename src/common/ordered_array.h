@@ -1,8 +1,8 @@
 #ifndef ORDERED_ARRAY_H
 #define ORDERED_ARRAY_H
 
-#include "types.h:
-
+#include "types.h"
+#include "utils.h"
 
 typedef void* type_t;
 typedef s8_t (*less_than_t)(type_t, type_t);

@@ -79,3 +79,30 @@ void print_hex(s32_t n) {
     str2[j] = '\0';
     print_string(str2);
 }
+
+
+void panic(const char* message, const char* file, u32_t line) {
+    asm volatile("cli");
+    print_string("PANIC(");
+    print_string(message);
+    print_string(") at ");
+    print_string(file);
+    print_string(":");
+    print_decimal(line);
+    print_string("\n");
+    while(1) ;
+
+}
+
+void panic_assert(const char* file, u32_t line, const char* desc) {
+    asm volatile("cli");
+    print_string("ASSERTION-FAILED(");
+    print_string(desc);
+    print_string(") at ");
+    print_string(file);
+    print_string(":");
+    print_decimal(line);
+    print_string("\n");
+    while(1) ;
+
+}

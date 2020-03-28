@@ -36,7 +36,7 @@ static void disable_local_apic() {
 
 static void init_pic() {
 
-//    disable_local_apic();  
+    disable_local_apic();  
     outb(PIC1_PORT_COMMAND, 0x11);
     outb(PIC2_PORT_COMMAND, 0x11);
     outb(PIC1_PORT_DATA, 0x20);

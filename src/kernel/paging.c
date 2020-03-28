@@ -12,6 +12,7 @@ page_directory_t *kernel_directory=0;
 page_directory_t *current_directory=0;
 
 extern u32_t placement_address;
+extern heap_t *kheap;
 
 #define INDEX_FROM_BIT(n) (n/32)
 #define OFFSET_FROM_BIT(n) (n%32)
@@ -50,7 +51,7 @@ static u32_t first_unused_frame() {
     }
 }
 
-static void alloc_frame(page_t *page, int is_kernel, int is_writeable) {
+void alloc_frame(page_t *page, int is_kernel, int is_writeable) {
     if(page->frame != 0) return;
     u32_t index = first_unused_frame();
     if(index==(u32_t)-1) {
@@ -99,15 +100,15 @@ void init_paging() {
     print_string("\n");
     switch_page_directory(kernel_directory);
     print_string("finished enabling page\n");
-
+    kheap = create_heap(KHEAP_START,KHEAP_START+KHEAP_INITIAL_SIZE,0xCFFFF000,0,0);
 }
 
 void switch_page_directory(page_directory_t *dir) {
     current_directory = dir;
        print_string("directory is : ");
-	print_hex(dir);
+	print_hex((u32_t)dir);
 	print_string(" ");
-	print_hex(&dir->tables_physical);
+	print_hex((u32_t)&dir->tables_physical);
 	print_string("\n");
     asm volatile("mov %0,%%cr3"::"r"(&dir->tables_physical));
     u32_t cr0;

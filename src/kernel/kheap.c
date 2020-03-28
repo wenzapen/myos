@@ -1,24 +1,56 @@
 #include "kheap.h"
 #include "../common/utils.h"
+#include "paging.h"
 
 extern u32_t kernel_end;
 u32_t placement_address = (u32_t)&kernel_end;
+extern page_directory_t *kernel_directory;
+heap_t *kheap=0;
+
+static void expand(u32_t new_size, heap_t *heap) {
+    ASSERT(new_size > heap->end_address - heap->start_address);
+//make size page-aligned
+    if(new_size & 0x00000FFF) {
+	new_size &= 0xFFFFF000;
+	new_size += 0x1000;
+    }
+    ASSERT(heap->start_address + new_size <= heap->max_address);
+//add page entry and map page to frame
+    u32_t old_size = heap->end_address - heap->start_address;
+    u32_t i = old_size;
+    while(i < new_size) {
+	alloc_frame(get_page(heap->start_address+i, 1, kernel_directory),(heap->supervisor)?1:0,(heap->readonly)?0:1);
+	i += 0x1000;
+    }
+    heap->end_address = heap->start_address+new_size;
+}
 
 
 static u32_t kmalloc_internal(u32_t size, int align, u32_t* phys) {
     print_string("Placement_address is : ");
     print_hex(placement_address);
     print_string("\n");
-    if(align == 1 && (placement_address & 0xFFF)) {
-	placement_address &= 0xFFFFF000;
-	placement_address += 0x1000;
+    if(kheap != 0) {
+	void *addr = alloc(size, (u8_t)align, kheap);
+	if(phys != 0) {
+	    page_t *page = get_page((u32_t)addr, 0, kernel_directory);
+	    *phys = page->frame*0x1000 + (u32_t)addr&0xFFF;
+	}
+	return (u32_t)addr;
+    } else {
+
+        if(align == 1 && (placement_address & 0xFFF)) {
+    	placement_address &= 0xFFFFF000;
+    	placement_address += 0x1000;
+        }
+        if(phys) {
+    	*phys = placement_address;
+        }
+        u32_t tmp = placement_address;
+        placement_address += size;
+        return tmp;
     }
-    if(phys) {
-	*phys = placement_address;
-    }
-    u32_t tmp = placement_address;
-    placement_address += size;
-    return tmp;
+
 }
 
 u32_t kmalloc(u32_t size) {
@@ -75,16 +107,16 @@ heap_t *create_heap(u32_t start, u32_t end, u32_t max, u8_t supervisor, u8_t rea
 	start += 0x1000;
     }
     heap->start_address = start;
-    heap->end_address = end_addr;
+    heap->end_address = end;
     heap->max_address = max;
     heap->supervisor = supervisor;
     heap->readonly = readonly;
 
     header_t *hole = (header_t *)start;
-    hole->size = end_addr - start;
+    hole->size = end - start;
     hole->magic = HEAP_MAGIC;
     hole->is_hole = 1;
-    insert_ordered_array((void *)hole, heap->index);
+    insert_ordered_array((void *)hole, &heap->index);
     return heap;
 
 }
@@ -112,7 +144,7 @@ void *alloc(u32_t size, u8_t page_align, heap_t *heap) {
 	    header->magic = HEAP_MAGIC;
 	    header->size = new_length - old_length;
 	    header->is_hole = 1;
-	    foot_t *footer = (footer_t *)(old_end_address+header->size - sizeof(footer_t));
+	    footer_t *footer = (footer_t *)(old_end_address+header->size - sizeof(footer_t));
 	    footer->magic = HEAP_MAGIC;
 	    footer->header = header;
 	    insert_ordered_array((void *)header, &heap->index);
