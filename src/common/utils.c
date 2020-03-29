@@ -17,7 +17,7 @@ void print_string(char* str) {
 }
 
 void print_decimal(s32_t n) {
-    char str[32];
+    char str[35];
     int negative = 0;
     if(n < 0) {
     n = -n;
@@ -32,7 +32,7 @@ void print_decimal(s32_t n) {
 	n /= 10;
 	i++;
     }
-    char str2[32];
+    char str2[35];
     i--;
     int j = 0;
     if(negative == 1) {
@@ -46,8 +46,8 @@ void print_decimal(s32_t n) {
     print_string(str2);
 }
 
-void print_hex(s32_t n) {
-    char str[32];
+void print_hex(u32_t n) {
+    char str[35];
     int i=0;
     int h=0; 
     if(n==0) {
@@ -67,7 +67,7 @@ void print_hex(s32_t n) {
 	n = (n >> 4); 
 	i++;
     }
-    char str2[32];
+    char str2[35];
     i--;
     int j = 0;
     str2[0] = '0';

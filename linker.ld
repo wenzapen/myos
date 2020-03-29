@@ -16,8 +16,7 @@ SECTIONS {
     }
 
     .bss ALIGN(0x1000): {
-	*(COMMON)
-	*(.BSS)
+	*(.bss)
     }
     kernel_end = .;
 }

@@ -7,7 +7,6 @@
 #include "paging.h"
 
 int main(multiboot_info_t *multiboot_info) {
-
     init_gdt();
     print_string("Welcome to my os!\n");
     init_idt();
@@ -25,14 +24,15 @@ int main(multiboot_info_t *multiboot_info) {
     
 //    start_program();
     init_paging();
-
-    print_decimal(1);
+    u32_t b = kmalloc(8);
+    print_string("b: ");
+    print_hex(b);
     print_string("\n");
-    print_decimal(-1);
+    u32_t c = kmalloc(8);
+    print_string("c: ");
+    print_hex(c);
     print_string("\n");
-    print_decimal(32);
-    print_string("\n");
-    asm volatile("int $3");
+ //   asm volatile("int $3");
     u32_t *p = (u32_t*)0xA0000000;
     u32_t do_page_fault = *p;
     while(1) ;

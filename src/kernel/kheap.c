@@ -27,9 +27,6 @@ static void expand(u32_t new_size, heap_t *heap) {
 
 
 static u32_t kmalloc_internal(u32_t size, int align, u32_t* phys) {
-    print_string("Placement_address is : ");
-    print_hex(placement_address);
-    print_string("\n");
     if(kheap != 0) {
 	void *addr = alloc(size, (u8_t)align, kheap);
 	if(phys != 0) {
@@ -48,7 +45,10 @@ static u32_t kmalloc_internal(u32_t size, int align, u32_t* phys) {
         }
         u32_t tmp = placement_address;
         placement_address += size;
-        return tmp;
+/*    print_string("after Placement_address is : ");
+    print_hex(placement_address);
+    print_string("\n");
+*/        return tmp;
     }
 
 }

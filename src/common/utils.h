@@ -5,7 +5,7 @@
 
 void print_string(char *str);
 void print_decimal(s32_t n);
-void print_hex(s32_t n);
+void print_hex(u32_t n);
 
 void panic(const char* message, const char* file, u32_t line);
 void panic_assert(const char* file, u32_t line, const char* desc);

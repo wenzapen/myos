@@ -13,6 +13,7 @@ page_directory_t *current_directory=0;
 
 extern u32_t placement_address;
 extern heap_t *kheap;
+extern u32_t kernel_end;
 
 #define INDEX_FROM_BIT(n) (n/32)
 #define OFFSET_FROM_BIT(n) (n%32)
@@ -75,50 +76,50 @@ static void free_frame(page_t *page) {
 void init_paging() {
     u32_t mem_end_page = 0x1000000;
     nframes = mem_end_page/0x1000;
+
     frames_bitmap = (u32_t*)kmalloc(nframes/8);
     mem_set((u8_t *)frames_bitmap, 0, nframes/8);
-
     kernel_directory = (page_directory_t*)kmalloc_a(sizeof(page_directory_t));
     mem_set((u8_t *)kernel_directory, 0, sizeof(page_directory_t));
     current_directory = kernel_directory;
-    print_string("allocate kernal_directory: ");
-    print_string("\n");
-    
-    int i=0;
-    while(i<placement_address) {
-//	alloc_frame(get_page(i,1,kernel_directory),0,0);
-	i += 0x1000;
-    print_string("allocating frame, kernel_directory is : ");
-    print_hex((u32_t)kernel_directory);
-    print_string("\n");
+
+//setup page table for Kheap 
+    u32_t h = KHEAP_START;
+    if(h & 0x00000FFF) {
+	h &= 0xFFFFF000;
     }
-    print_string("start to register page-fault\n");
+    while(h < KHEAP_START+KHEAP_INITIAL_SIZE+0x1000) {
+	get_page(h,1,kernel_directory);
+	h += 0x1000;
+    }
+    int i=0;
+    while(i<placement_address + 0x1000) {
+	alloc_frame(get_page(i,1,kernel_directory),0,0);
+	i += 0x1000;
+	print_string("address i: ");
+	print_hex(i);
+	print_string("\n");
+    }
     register_interrupt_handler(14,&page_fault);
-    
-    print_string("starting to enable page, kernel_directory is : ");
-    print_hex((u32_t)kernel_directory);
-    print_string("\n");
     switch_page_directory(kernel_directory);
-    print_string("finished enabling page\n");
+    h = KHEAP_START;
+    if(h & 0x00000FFF) {
+	h &= 0xFFFFF000;
+    }
+    while(h < KHEAP_START+KHEAP_INITIAL_SIZE+0x1000) {
+	alloc_frame(get_page(h,1,kernel_directory),0,0);
+	h += 0x1000;
+    }
     kheap = create_heap(KHEAP_START,KHEAP_START+KHEAP_INITIAL_SIZE,0xCFFFF000,0,0);
 }
 
 void switch_page_directory(page_directory_t *dir) {
     current_directory = dir;
-       print_string("directory is : ");
-	print_hex((u32_t)dir);
-	print_string(" ");
-	print_hex((u32_t)&dir->tables_physical);
-	print_string("\n");
-    asm volatile("mov %0,%%cr3"::"r"(&dir->tables_physical));
+  asm volatile("mov %0,%%cr3"::"r"(&dir->tables_physical));
     u32_t cr0;
     asm volatile("mov %%cr0, %0":"=r"(cr0));
     cr0 |= 0x80000000;
-    print_string("before enable paging, cr0 is : ");
-    print_hex(cr0);
-    print_string(" cr \n");
     asm volatile("mov %0, %%cr0"::"r"(cr0));
-    print_string("after enable paging\n");
 }
 
 page_t* get_page(u32_t address, int make, page_directory_t *dir) {
@@ -144,5 +145,6 @@ void page_fault(registers_t regs) {
     print_string("Page fault at : ");
     print_hex(fault_address);
     print_string("\n");
+    while(1);
 
 }

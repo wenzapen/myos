@@ -24,19 +24,20 @@ CFLAGS=-g -ffreestanding
 all: kernel.iso
 
 
-kernel.iso: kernel.elf src/modules/test_module
+#kernel.iso: kernel.elf src/modules/test_module
+kernel.iso: kernel.elf 
 	mkdir iso
-	mkdir iso/modules
+#	mkdir iso/modules
 	mkdir iso/boot
 	mkdir iso/boot/grub
 	cp kernel.elf iso/boot/kernel.elf
-	cp src/modules/test_module iso/modules/test_module
+#	cp src/modules/test_module iso/modules/test_module
 	echo 'set timeout=0' > iso/boot/grub/grub.cfg
 	echo 'set default=0' >> iso/boot/grub/grub.cfg
 	echo '' >> iso/boot/grub/grub.cfg
 	echo 'menuentry "My Operating System" {' >> iso/boot/grub/grub.cfg
 	echo '  multiboot /boot/kernel.elf' >> iso/boot/grub/grub.cfg
-	echo '  module /modules/test_module' >> iso/boot/grub/grub.cfg
+#	echo '  module /modules/test_module' >> iso/boot/grub/grub.cfg
 	echo '  boot' >> iso/boot/grub/grub.cfg
 	echo '}' >> iso/boot/grub/grub.cfg
 	grub-mkrescue --output=kernel.iso iso
