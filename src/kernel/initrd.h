@@ -19,5 +19,5 @@ typedef struct {
 //module and returns a completed filesystem node.
 
 fs_node_t *init_initrd(u32_t location);
-
+void print_fs(fs_node_t *node);
 #endif

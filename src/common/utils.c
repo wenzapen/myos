@@ -106,3 +106,34 @@ void panic_assert(const char* file, u32_t line, const char* desc) {
     while(1) ;
 
 }
+
+void strcpy(char *dest, char *src) {
+    if(dest != src) {
+	int i=0;
+	while(src[i] != '\0') {
+	    dest[i++] = src[i++];
+	}
+	dest[i] = '\0';
+    }
+}
+u32_t strcmp(char *dest, char *src) {
+    int i=0;
+    while(src[i] != '\0') {
+	if(dest[i] != src[i]
+	    return 0;
+	i++;
+    }
+    if(dest[i] == '\0')
+	return 1;
+    return 0;
+}
+u32_t strlen(char *dest) {
+    int i=0;
+    while(dest[i] != '\0')
+	i++;
+    return i;
+}
+void memcpy(char *dest, char *src, u32_t len) {
+    for(int i=0; i<len; i++)
+	*dest++ = *src++;
+}

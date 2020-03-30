@@ -14,7 +14,7 @@ static u32_t initrd_read(fs_node_t *node,u32_t offset,u32_t size,u8_t *buffer) {
 	return 0;
     if(offset+size > header.length)
 	size = header.length-offset;
-    mem_copy((u8_t*)(header.offset+offset),buffer, size);
+    memcpy((u8_t*)(header.offset+offset),buffer, size);
     return size;
 }
 
@@ -95,5 +95,25 @@ fs_node_t *init_initrd(u32_t location) {
 	root_nodes[i].impl = 0;
     }
     return initrd_root;
+
+}
+//print the whole directory
+void print_fs(fs_node_t *fs_root) {
+    int i=0;
+    struct dirent *node = 0;
+    while((node=readdir(fs_root,i))!=0) {
+	print_string("Found file ");
+	print_string(node->name);
+	fs_node_t *fsnode = finddir_fs(fs_root,node->name);
+	if((fsnode->flags&0x7)==FS_DIRECTORY)
+	    print_string("\n (directory) \n");
+	else {
+	    print_string("\n contents: ");
+	    char *buf;
+	    read_fs(fsnode,0,256,buf);
+	    print_string(buf);
+        }
+	i++;
+    }
 
 }
