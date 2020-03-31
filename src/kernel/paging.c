@@ -96,10 +96,10 @@ void init_paging() {
     while(i<placement_address + 0x1000) {
 	alloc_frame(get_page(i,1,kernel_directory),0,0);
 	i += 0x1000;
-	print_string("address i: ");
+/*	print_string("address i: ");
 	print_hex(i);
 	print_string("\n");
-    }
+*/    }
     register_interrupt_handler(14,&page_fault);
     switch_page_directory(kernel_directory);
     h = KHEAP_START;

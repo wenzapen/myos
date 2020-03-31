@@ -7,12 +7,12 @@ u32_t tick = 0;
 
 static void timer_callback(registers_t regs) {
     tick++;
-    if(tick < 5 ) {
+/*    if(tick < 5 ) {
         print_string("Tick: ");
         print_decimal(tick);
         print_string("\n");
     }
-
+*/
 }
 
 void init_timer(u32_t frequency) {

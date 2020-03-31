@@ -19,9 +19,9 @@ typedef struct page_table {
 } page_table_t;
 
 typedef struct page_directory {
-    page_table_t* page_tables[1024];
-    u32_t tables_physical[1024];
-    u32_t physical_addr;
+    page_table_t* page_tables[1024]; //pointers to pagetables
+    u32_t tables_physical[1024]; //physical address of pagetables
+    u32_t physical_addr; //physical address of tables_physical
 } page_directory_t;
 
 void init_paging();

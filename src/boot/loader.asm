@@ -13,7 +13,7 @@ align 4
 start:
     mov eax, 0xCAFEBABE
     extern main
-    push ebx
+    push ebx ;the pointer to mboot_info
     call main
 .loop:
     jmp .loop

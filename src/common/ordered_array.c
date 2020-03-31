@@ -1,4 +1,5 @@
 #include "ordered_array.h"
+#include "../kernel/kheap.h"
 
 
 s8_t less_than(type_t a, type_t b) {

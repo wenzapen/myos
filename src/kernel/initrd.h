@@ -1,4 +1,4 @@
-#ifnde INITRD_H
+#ifndef INITRD_H
 #define INITRD_H
 
 #include "../common/types.h"

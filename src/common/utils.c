@@ -2,7 +2,7 @@
 #include "../drivers/io.h"
 #include "../common/types.h"
 
-void print_string(char* str) {
+void print_string(const char* str) {
     u16_t pos = fb_get_cursor();
     for(int i=0; str[i]!='\0';i++) {
 	if(str[i]=='\n') {
@@ -106,8 +106,8 @@ void panic_assert(const char* file, u32_t line, const char* desc) {
     while(1) ;
 
 }
-
-void strcpy(char *dest, char *src) {
+/*
+void strcpy(char *dest, const char *src) {
     if(dest != src) {
 	int i=0;
 	while(src[i] != '\0') {
@@ -116,10 +116,16 @@ void strcpy(char *dest, char *src) {
 	dest[i] = '\0';
     }
 }
+*/
+void strcpy(char *dest, const char *src) {
+    do {
+	*dest++ = *src++;
+    } while(*src != 0);
+}
 u32_t strcmp(char *dest, char *src) {
     int i=0;
     while(src[i] != '\0') {
-	if(dest[i] != src[i]
+	if(dest[i] != src[i])
 	    return 0;
 	i++;
     }

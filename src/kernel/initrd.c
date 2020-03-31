@@ -1,4 +1,7 @@
 #include "initrd.h"
+#include "../common/utils.h"
+#include "kheap.h"
+#include "fs.h"
 
 initrd_header_t *initrd_header;
 initrd_file_header_t *file_headers;
@@ -34,10 +37,10 @@ static struct dirent *initrd_readdir(fs_node_t *node, u32_t index) {
 }
 
 static fs_node_t *initrd_finddir(fs_node_t *node, char *name) {
-    if(node == initrd_root && !strcmp(name, "dev"))
+    if(node == initrd_root && strcmp(name, "dev"))
 	return initrd_dev;
     int i;
-    for(i=0; i<nroot_node; i++) {
+    for(i=0; i<nroot_nodes; i++) {
 	if(!strcmp(name, root_nodes[i].name))
 	    return &root_nodes[i];
     }
@@ -50,6 +53,10 @@ fs_node_t *init_initrd(u32_t location) {
 //initialise root directory
     initrd_root = (fs_node_t *)kmalloc(sizeof(fs_node_t));
     strcpy(initrd_root->name, "initrd");
+    print_string("###########################\n");
+    print_string(initrd_root->name);
+    print_string("\n");
+    print_string("###########################\n");
     initrd_root->mask = initrd_root->uid = initrd_root->gid = initrd_root->inode = initrd_root->length = 0;
     initrd_root->flags = FS_DIRECTORY;
     initrd_root->read = 0;
@@ -80,8 +87,8 @@ fs_node_t *init_initrd(u32_t location) {
  
     int i;
     for(i=0; i<initrd_header->nfiles; i++) {
-	file_header[i].offset += location;
-	strcpy(root_nodes[i].name, &file_headers[i].name);
+	file_headers[i].offset += location;
+	strcpy(root_nodes[i].name, file_headers[i].name);
 	root_nodes[i].mask = root_nodes[i].uid = root_nodes[i].gid = 0;
 	root_nodes[i].length = file_headers[i].length;
 	root_nodes[i].inode = i;
@@ -101,15 +108,16 @@ fs_node_t *init_initrd(u32_t location) {
 void print_fs(fs_node_t *fs_root) {
     int i=0;
     struct dirent *node = 0;
-    while((node=readdir(fs_root,i))!=0) {
+    while((node=initrd_readdir(fs_root,i))!=0) {
 	print_string("Found file ");
 	print_string(node->name);
 	fs_node_t *fsnode = finddir_fs(fs_root,node->name);
+	print_hex(fsnode->flags);
 	if((fsnode->flags&0x7)==FS_DIRECTORY)
-	    print_string("\n (directory) \n");
+	    print_string("\n(directory)\n");
 	else {
-	    print_string("\n contents: ");
-	    char *buf;
+	    print_string("\ncontents: ");
+	    char buf[256];
 	    read_fs(fsnode,0,256,buf);
 	    print_string(buf);
         }
