@@ -17,28 +17,30 @@ static u32_t initrd_read(fs_node_t *node,u32_t offset,u32_t size,u8_t *buffer) {
 	return 0;
     if(offset+size > header.length)
 	size = header.length-offset;
-    memcpy((u8_t*)(header.offset+offset),buffer, size);
+    memcpy(buffer, (u8_t*)(header.offset+offset), size);
     return size;
 }
 
 static struct dirent *initrd_readdir(fs_node_t *node, u32_t index) {
     if(node==initrd_root && index==0) {
 	strcpy(dirent.name, "dev");
-	dirent.name[3] = 0;
+//	dirent.name[3] = 0;
 	dirent.ino = 0;
 	return &dirent;
     }
     if(index-1 >= nroot_nodes) 
 	return 0;
     strcpy(dirent.name, root_nodes[index-1].name);
-    dirent.name[strlen(root_nodes[index-1].name)] = 0;
+//    dirent.name[strlen(root_nodes[index-1].name)] = 0;
     dirent.ino = root_nodes[index-1].inode;
     return &dirent;
 }
 
 static fs_node_t *initrd_finddir(fs_node_t *node, char *name) {
-    if(node == initrd_root && strcmp(name, "dev"))
+    if(node == initrd_root && !strcmp(name, "dev")) {
+	print_node(initrd_dev);
 	return initrd_dev;
+    }
     int i;
     for(i=0; i<nroot_nodes; i++) {
 	if(!strcmp(name, root_nodes[i].name))
@@ -53,12 +55,11 @@ fs_node_t *init_initrd(u32_t location) {
 //initialise root directory
     initrd_root = (fs_node_t *)kmalloc(sizeof(fs_node_t));
     strcpy(initrd_root->name, "initrd");
-    print_string("###########################\n");
-    print_string(initrd_root->name);
-    print_string("\n");
-    print_string("###########################\n");
     initrd_root->mask = initrd_root->uid = initrd_root->gid = initrd_root->inode = initrd_root->length = 0;
     initrd_root->flags = FS_DIRECTORY;
+    print_string("flag of dev: ");
+    print_hex(initrd_root->flags);
+    print_char('\n');
     initrd_root->read = 0;
     initrd_root->write = 0;
     initrd_root->open = 0;
@@ -70,17 +71,17 @@ fs_node_t *init_initrd(u32_t location) {
 
 //initialise /dev directory
     initrd_dev = (fs_node_t *)kmalloc(sizeof(fs_node_t));
-    strcpy(initrd_root->name, "dev");
-    initrd_root->mask = initrd_root->uid = initrd_root->gid = initrd_root->inode = initrd_root->length = 0;
-    initrd_root->flags = FS_DIRECTORY;
-    initrd_root->read = 0;
-    initrd_root->write = 0;
-    initrd_root->open = 0;
-    initrd_root->close = 0;
-    initrd_root->readdir = &initrd_readdir;
-    initrd_root->finddir = &initrd_finddir;
-    initrd_root->ptr = 0;
-    initrd_root->impl = 0;
+    strcpy(initrd_dev->name, "dev");
+    initrd_dev->mask = initrd_dev->uid = initrd_dev->gid = initrd_dev->inode = initrd_dev->length = 0;
+    initrd_dev->flags = FS_DIRECTORY;
+    initrd_dev->read = 0;
+    initrd_dev->write = 0;
+    initrd_dev->open = 0;
+    initrd_dev->close = 0;
+    initrd_dev->readdir = &initrd_readdir;
+    initrd_dev->finddir = &initrd_finddir;
+    initrd_dev->ptr = 0;
+    initrd_dev->impl = 0;
 
     root_nodes = (fs_node_t *)kmalloc(sizeof(fs_node_t) *initrd_header->nfiles);
     nroot_nodes = initrd_header->nfiles;
@@ -104,6 +105,16 @@ fs_node_t *init_initrd(u32_t location) {
     return initrd_root;
 
 }
+//only print one node
+void print_node(fs_node_t *node) {
+    print_string("Node name is: ");
+    print_string(node->name);
+    print_char('\n');
+    print_string("Node flag is: ");
+    print_hex(node->flags);
+    print_char('\n');
+}
+
 //print the whole directory
 void print_fs(fs_node_t *fs_root) {
     int i=0;
@@ -111,13 +122,14 @@ void print_fs(fs_node_t *fs_root) {
     while((node=initrd_readdir(fs_root,i))!=0) {
 	print_string("Found file ");
 	print_string(node->name);
+	print_char('\n');
 	fs_node_t *fsnode = finddir_fs(fs_root,node->name);
-	print_hex(fsnode->flags);
+	print_node(fsnode);
 	if((fsnode->flags&0x7)==FS_DIRECTORY)
 	    print_string("\n(directory)\n");
 	else {
 	    print_string("\ncontents: ");
-	    char buf[256];
+	    char *buf;
 	    read_fs(fsnode,0,256,buf);
 	    print_string(buf);
         }

@@ -2,6 +2,19 @@
 #include "../drivers/io.h"
 #include "../common/types.h"
 
+
+void print_char(char character) {
+    u16_t pos = fb_get_cursor();
+    if(character == '\n')
+	pos = (pos/MAX_COL+1)*MAX_COL;
+    else {
+	fb_write(character, pos);
+	pos++;
+    }
+    pos = fb_scroll(pos);
+    fb_set_cursor(pos);
+}
+
 void print_string(const char* str) {
     u16_t pos = fb_get_cursor();
     for(int i=0; str[i]!='\0';i++) {
@@ -106,34 +119,39 @@ void panic_assert(const char* file, u32_t line, const char* desc) {
     while(1) ;
 
 }
-/*
+
 void strcpy(char *dest, const char *src) {
     if(dest != src) {
 	int i=0;
-	while(src[i] != '\0') {
-	    dest[i++] = src[i++];
+	while(*src != 0) {
+	    *dest++ = *src++;
 	}
-	dest[i] = '\0';
+	*dest = '\0';
     }
 }
-*/
+
+/*
 void strcpy(char *dest, const char *src) {
     do {
 	*dest++ = *src++;
     } while(*src != 0);
 }
-u32_t strcmp(char *dest, char *src) {
-    int i=0;
-    while(src[i] != '\0') {
-	if(dest[i] != src[i])
-	    return 0;
-	i++;
-    }
-    if(dest[i] == '\0')
-	return 1;
-    return 0;
+*/
+
+//if str1 < str2, return -1; if str1=str2, return 0;if str1>str2,return 1
+u32_t strcmp(const char *str1, const char *str2) {
+    const unsigned char *s1 = str1;
+    const unsigned char *s2 = str2;
+    unsigned char c1, c2;
+    do {
+	c1 = *s1++;
+	c2 = *s2++;
+	if(c1 == '\0')
+	    return c1 - c2;
+    } while(c1 == c2);
+    return c1 - c2;
 }
-u32_t strlen(char *dest) {
+u32_t strlen(const char *dest) {
     int i=0;
     while(dest[i] != '\0')
 	i++;

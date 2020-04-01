@@ -1,4 +1,5 @@
 #include "../common/utils.h"
+#include "kheap.h"
 #include "../boot/gdt.h"
 #include "../drivers/interrupt.h"
 #include "../drivers/timer.h"
