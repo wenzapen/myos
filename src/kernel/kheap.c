@@ -28,8 +28,12 @@ static void expand(u32_t new_size, heap_t *heap) {
 
 static u32_t kmalloc_internal(u32_t size, int align, u32_t* phys) {
     if(kheap != 0) {
+//	print_string("before alloc on heap!\n");
 	void *addr = alloc(size, (u8_t)align, kheap);
-	if(phys != 0) {
+/*	print_string("after alloc on heap! addr is: ");
+	print_hex((u32_t)addr);
+	print_char('\n');
+*/	if(phys != 0) {
 	    page_t *page = get_page((u32_t)addr, 0, kernel_directory);
 	    *phys = page->frame*0x1000 + (u32_t)addr&0xFFF;
 	}
@@ -71,15 +75,33 @@ u32_t kmalloc_ap(u32_t size, u32_t* phys) {
 
 static s32_t find_smallest_hole(u32_t size, u8_t page_align, heap_t *heap) {
     int i=0;
-    while(i < heap->index.size) {
+/*    print_string("heap->index.size is : ");
+    print_hex(heap->index.size);
+    print_string("   page_align: ");
+    print_hex(page_align);
+    print_char('\n');
+*/    while(i < heap->index.size) {
+//	print_string("Inside find smallest hole: before lookup_order \n");
 	header_t *header = (header_t *)lookup_ordered_array(i, &heap->index);
 	if(page_align > 0) {
 	    u32_t location = (u32_t)header;
+/*		print_string("location: ");
+		print_hex(location);
+		print_string(" sizeof(header): ");
+		print_hex(sizeof(header_t));
+		print_char('\n');
+		print_hex(sizeof(header_t));
+*/
 	    int offset = 0;
-	    if((location+sizeof(header_t)) & 0x00000FFF != 0) {
+	    if(((location+sizeof(header_t)) & 0x00000FFF) != 0) {
 		offset = 0x1000 - ((location+sizeof(header_t)) & 0x00000FFF);
 		s32_t hole_size = (s32_t)header->size - offset;
-		if(hole_size >= (s32_t)size)
+/*		print_string("hole_size: ");
+		print_decimal(hole_size);
+		print_string("  size: ");
+		print_decimal(size);
+		print_char('\n');
+*/		if(hole_size >= (s32_t)size)
 		    break;	
 	    } 
 
@@ -123,8 +145,12 @@ heap_t *create_heap(u32_t start, u32_t end, u32_t max, u8_t supervisor, u8_t rea
 
 void *alloc(u32_t size, u8_t page_align, heap_t *heap) {
     u32_t new_size = size + sizeof(header_t) + sizeof(footer_t);
+//    print_string("before finding smallest hole: ");
     s32_t i = find_smallest_hole(new_size, page_align, heap);
-    if(i == -1) {
+/*    print_string("find smallest hole: ");
+    print_decimal(i);
+    print_char('\n');
+*/    if(i == -1) {
 	u32_t old_length = heap->end_address - heap->start_address;
 	u32_t old_end_address = heap->end_address;
 	expand(old_length + new_size, heap);

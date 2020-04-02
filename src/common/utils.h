@@ -14,7 +14,8 @@ void panic_assert(const char* file, u32_t line, const char* desc);
 void strcpy(char *dest, const char *src);
 u32_t strcmp(const char *str1, const char *str2);
 u32_t strlen(const char *dest);
-void memcpy(char *dest, char *src, u32_t len);
+void memcpy(char *dest, const char *src, u32_t len);
+void memset(char *dest, char character, u32_t len); 
 
 #define PANIC(msg) panic(msg, __FILE__, __LINE__);
 #define ASSERT(b) ((b)?0:panic_assert(__FILE__,__LINE__,#b));

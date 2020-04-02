@@ -2,11 +2,13 @@
 #include "interrupt.h"
 #include "../common/utils.h"
 #include "io.h"
+#include "../kernel/task.h"
 
 u32_t tick = 0;
 
 static void timer_callback(registers_t regs) {
     tick++;
+    switch_task();
 /*    if(tick < 5 ) {
         print_string("Tick: ");
         print_decimal(tick);

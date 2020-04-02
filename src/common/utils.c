@@ -157,7 +157,16 @@ u32_t strlen(const char *dest) {
 	i++;
     return i;
 }
-void memcpy(char *dest, char *src, u32_t len) {
+void memcpy(char *dest, const char *src, u32_t len) {
+    const char* s = src;
     for(int i=0; i<len; i++)
-	*dest++ = *src++;
+	*dest++ = *s++;
 }
+
+void memset(char* dest, char character, u32_t len) {
+    while(len > 0) {
+        *(dest++) = character;
+        len--;
+    }
+}
+

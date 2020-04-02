@@ -8,10 +8,13 @@
 #include "paging.h"
 #include "fs.h"
 #include "initrd.h"
+#include "task.h"
 
 extern u32_t placement_address;
+u32_t initial_esp;
 
-int main(multiboot_info_t *multiboot_info) {
+int main(multiboot_info_t *multiboot_info, u32_t initial_stack) {
+    initial_esp = initial_stack;
     init_gdt();
     print_string("Welcome to my os!\n");
     init_idt();
@@ -45,7 +48,8 @@ int main(multiboot_info_t *multiboot_info) {
     placement_address = initrd_end;
 //    start_program();
     init_paging();
-    u32_t b = kmalloc(8);
+    init_task();
+/*    u32_t b = kmalloc(8);
     print_string("b: ");
     print_hex(b);
     print_string("\n");
@@ -53,12 +57,22 @@ int main(multiboot_info_t *multiboot_info) {
     print_string("c: ");
     print_hex(c);
     print_string("\n");
- //   asm volatile("int $3");
+*/ 
+//   asm volatile("int $3");
  //   u32_t *p = (u32_t*)0xA0000000;
 //    u32_t do_page_fault = *p;
 
     fs_node_t *fs_root = init_initrd(initrd_location);
+    int ret=fork();
+    print_string("fork() returned ");
+    print_hex(ret);
+    print_string(" , and getpid() returned ");
+    print_hex(get_pid());
+    print_string("\n");
+
+    asm volatile("cli");
     print_fs(fs_root);
+    asm volatile("sti");
     while(1) ;
     return 1;
 
