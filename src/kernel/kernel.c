@@ -15,6 +15,7 @@ u32_t initial_esp;
 
 int main(multiboot_info_t *multiboot_info, u32_t initial_stack) {
     initial_esp = initial_stack;
+    init_serial();
     init_gdt();
     print_string("Welcome to my os!\n");
     init_idt();
@@ -26,7 +27,7 @@ int main(multiboot_info_t *multiboot_info, u32_t initial_stack) {
     u32_t module_addr = multiboot_info->mods_addr;
     u32_t initrd_location = *((u32_t *)multiboot_info->mods_addr);
     u32_t initrd_end = *(u32_t *)(multiboot_info->mods_addr + 4);
-    print_string("Module start address is : ");
+/*    print_string("Module start address is : ");
     print_hex(module_addr);
     print_string("\n");
     print_string("Module location address is : ");
@@ -39,16 +40,13 @@ int main(multiboot_info_t *multiboot_info, u32_t initial_stack) {
     print_string("\n number of files in initrd : ");
     print_decimal(*(u32_t *)initrd_location);
     print_string("\n");
-    initrd_file_header_t *file = (initrd_file_header_t *)(initrd_location+4);
-    print_decimal(file->magic);
-    print_string(file->name);
-    print_string("\n");
+*/    initrd_file_header_t *file = (initrd_file_header_t *)(initrd_location+4);
     typedef void (*call_module_t)(void);
     call_module_t start_program = (call_module_t)module_addr;
     placement_address = initrd_end;
 //    start_program();
     init_paging();
-    init_task();
+//    init_task();
 /*    u32_t b = kmalloc(8);
     print_string("b: ");
     print_hex(b);
@@ -63,15 +61,15 @@ int main(multiboot_info_t *multiboot_info, u32_t initial_stack) {
 //    u32_t do_page_fault = *p;
 
     fs_node_t *fs_root = init_initrd(initrd_location);
-    int ret=fork();
+/*    int ret=fork();
     print_string("fork() returned ");
     print_hex(ret);
     print_string(" , and getpid() returned ");
     print_hex(get_pid());
     print_string("\n");
-
+*/
     asm volatile("cli");
-    print_fs(fs_root);
+//    print_fs(fs_root);
     asm volatile("sti");
     while(1) ;
     return 1;

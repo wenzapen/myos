@@ -7,6 +7,10 @@ void print_char(char character);
 void print_string(const char *str);
 void print_decimal(s32_t n);
 void print_hex(u32_t n);
+void write_serial_char(char character);
+void write_serial_string(char *str);
+void write_serial_decimal(s32_t n);
+void write_serial_hex(u32_t n);
 
 void panic(const char* message, const char* file, u32_t line);
 void panic_assert(const char* file, u32_t line, const char* desc);

@@ -38,7 +38,6 @@ static struct dirent *initrd_readdir(fs_node_t *node, u32_t index) {
 
 static fs_node_t *initrd_finddir(fs_node_t *node, char *name) {
     if(node == initrd_root && !strcmp(name, "dev")) {
-	print_node(initrd_dev);
 	return initrd_dev;
     }
     int i;
@@ -57,9 +56,6 @@ fs_node_t *init_initrd(u32_t location) {
     strcpy(initrd_root->name, "initrd");
     initrd_root->mask = initrd_root->uid = initrd_root->gid = initrd_root->inode = initrd_root->length = 0;
     initrd_root->flags = FS_DIRECTORY;
-    print_string("flag of dev: ");
-    print_hex(initrd_root->flags);
-    print_char('\n');
     initrd_root->read = 0;
     initrd_root->write = 0;
     initrd_root->open = 0;

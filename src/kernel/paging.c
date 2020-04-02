@@ -23,6 +23,67 @@ extern void copy_page_physical(u32_t src_frame, u32_t dest_frame);
 
 static page_table_t *clone_table(page_table_t *src, u32_t *phys);
 
+static void print_pages_serial(page_directory_t *dir, int table_index ) {
+    page_table_t * table = dir->page_tables[table_index];
+    ASSERT((u32_t)table > 0);
+    for(int i=0; i< 1024; i++) {
+        if(table->pages[i].present) {
+            write_serial_string("virual address of : ");
+            write_serial_hex(table_index*i*0x1000);
+            write_serial_string(" mapped to physical address: ");
+            write_serial_hex((u32_t)table->pages[i].frame*0x1000);
+            write_serial_string("\n");
+
+        }
+    }
+}
+static void print_tables_serial(page_directory_t * dir) {
+    for(int i=0; i<1024; i++) {
+        if(dir->page_tables[i]) {
+            write_serial_string("virual address of : ");
+            write_serial_hex(i*0x400000);
+            write_serial_string(" table virtual address: ");
+            write_serial_hex((u32_t)dir->page_tables[i]);
+            write_serial_string(" table physical address: ");
+            write_serial_hex((u32_t)dir->tables_physical[i]);
+            write_serial_string("\n");
+            write_serial_string("#########################\n");
+            print_pages_serial(dir, i);
+        }
+    }
+
+}
+
+static void print_pages(page_directory_t *dir, int table_index ) {
+    page_table_t * table = dir->page_tables[table_index];
+    ASSERT((u32_t)table > 0);
+    for(int i=0; i< 1024; i++) {
+	if(table->pages[i].present) {
+	    print_string("virual address of : ");
+	    print_hex(table_index*i*0x1000);
+	    print_string(" mapped to physical address: ");
+	    print_hex((u32_t)table->pages[i].frame*0x1000);
+	    print_string("\n");
+	    
+	}
+    }
+}
+static void print_tables(page_directory_t * dir) {
+    for(int i=0; i<1024; i++) {
+	if(dir->page_tables[i]) {
+	    print_string("virual address of : ");
+	    print_hex(i*0x400000);
+	    print_string(" table virtual address: ");
+	    print_hex((u32_t)dir->page_tables[i]);
+	    print_string(" table physical address: ");
+	    print_hex((u32_t)dir->tables_physical[i]);
+	    print_string("\n");
+	    print_string("#########################\n");
+	    print_pages(dir, i);
+	}
+    } 
+
+}
 
 static void set_frame(u32_t frame_addr) {
     u32_t frame = frame_addr/0x1000;
@@ -121,6 +182,7 @@ void init_paging() {
 	alloc_frame(get_page(h,1,kernel_directory),0,0);
 	h += 0x1000;
     }
+    print_tables_serial(kernel_directory);
     register_interrupt_handler(14,&page_fault);
     switch_page_directory(kernel_directory);
     kheap = create_heap(KHEAP_START,KHEAP_START+KHEAP_INITIAL_SIZE,0xCFFFF000,0,0);
@@ -137,24 +199,51 @@ void switch_page_directory(page_directory_t *dir) {
 }
 
 page_t* get_page(u32_t address, int make, page_directory_t *dir) {
-    print_string("\n");
+/*    print_string("\n");
     print_string("get page index for address: ");
     print_hex(address);
-    address /= 0x1000;
+    print_string("\n");
+*/    address /= 0x1000;
     u32_t table_index = address/1024;
+/*    print_string("table index for address: ");
+    print_hex(address);
+    print_string("  is: ");
+    print_hex(table_index);
+    print_string("table address  is: ");
+    print_hex((u32_t)dir->page_tables[table_index]);
+*/    print_string("\n");
     if(dir->page_tables[table_index]) {
+    print_string("get page index for address: ");
+    print_hex(address);
+    print_string("\n");
+    print_string(" Make page_table, table address is: ");
+    print_hex((u32_t)dir->page_tables[table_index]);
+    print_string(" page address is: ");
+    print_hex((u32_t)&dir->page_tables[table_index]->pages[address%1024]);
+    print_char('\n');
 	return &dir->page_tables[table_index]->pages[address%1024];
     } else if(make) {
 	u32_t tmp;
 	dir->page_tables[table_index] = (page_table_t*)kmalloc_ap(sizeof(page_table_t), &tmp);
 	mem_set((u8_t *)dir->page_tables[table_index],0,0x1000);
 	dir->tables_physical[table_index] = tmp|0x7;
+    print_string("get page index for address: ");
+    print_hex(address);
+    print_string("\n");
+    print_string("get table physical address: ");
+    print_hex(tmp);
+    print_string("\n");
+    print_string(" Make page_table, table virtual address is: ");
+    print_hex((u32_t)dir->page_tables[table_index]);
+    print_string(" Make page_table, table physial address is: ");
+    print_hex((u32_t)dir->tables_physical[table_index]);
     print_string(" page address is: ");
     print_hex((u32_t)&dir->page_tables[table_index]->pages[address%1024]);
     print_char('\n');
 	return &dir->page_tables[table_index]->pages[address%1024];
 	
     } else {
+	print_string("\nError\n");
 	return 0;
     }
 }

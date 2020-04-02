@@ -16,7 +16,7 @@ void init_task() {
 //    print_string("Initialising tasking!\n");
     asm volatile("cli");
 //    print_string("Before moving stack!\n");
-    move_stack((void *)0xE0000000, 0x2000); 
+    move_stack((void *)0xE0000000, 0x4000); 
 //    print_string("After moving stack!\n");
     current_task = ready_queue = (task_t *)kmalloc(sizeof(task_t));
     current_task->id = next_pid++;
@@ -39,6 +39,9 @@ void move_stack(void *new_stack_start, u32_t size) {
     u32_t pd_addr;
     asm volatile("mov %%cr3, %0":"=r"(pd_addr));
     asm volatile("mov %0, %%cr3": : "r"(pd_addr));
+    print_string("page_directory address: ");
+    print_hex(pd_addr);
+    print_string("\n");
 
     u32_t old_esp; asm volatile("mov %%esp, %0" : "=r"(old_esp));
     u32_t old_ebp; asm volatile("mov %%ebp, %0" : "=r"(old_ebp));
