@@ -23,32 +23,32 @@ extern void copy_page_physical(u32_t src_frame, u32_t dest_frame);
 
 static page_table_t *clone_table(page_table_t *src, u32_t *phys);
 
-static void print_pages_serial(page_directory_t *dir, int table_index ) {
+void print_serial_pages(page_directory_t *dir, int table_index ) {
     page_table_t * table = dir->page_tables[table_index];
     ASSERT((u32_t)table > 0);
     for(int i=0; i< 1024; i++) {
         if(table->pages[i].present) {
-            write_serial_string("virual address of : ");
-            write_serial_hex(table_index*i*0x1000);
-            write_serial_string(" mapped to physical address: ");
-            write_serial_hex((u32_t)table->pages[i].frame*0x1000);
-            write_serial_string("\n");
+            print_serial_string("virual address of : ");
+            print_serial_hex(table_index*0x400000+i*0x1000);
+            print_serial_string(" mapped to physical address: ");
+            print_serial_hex((u32_t)table->pages[i].frame*0x1000);
+            print_serial_string("\n");
 
         }
     }
 }
-static void print_tables_serial(page_directory_t * dir) {
+void print_serial_tables(page_directory_t * dir) {
     for(int i=0; i<1024; i++) {
         if(dir->page_tables[i]) {
-            write_serial_string("virual address of : ");
-            write_serial_hex(i*0x400000);
-            write_serial_string(" table virtual address: ");
-            write_serial_hex((u32_t)dir->page_tables[i]);
-            write_serial_string(" table physical address: ");
-            write_serial_hex((u32_t)dir->tables_physical[i]);
-            write_serial_string("\n");
-            write_serial_string("#########################\n");
-            print_pages_serial(dir, i);
+            print_serial_string("virual address of : ");
+            print_serial_hex(i*0x400000);
+            print_serial_string(" table virtual address: ");
+            print_serial_hex((u32_t)dir->page_tables[i]);
+            print_serial_string(" table physical address: ");
+            print_serial_hex((u32_t)dir->tables_physical[i]);
+            print_serial_string("\n");
+            print_serial_string("#########################\n");
+            print_serial_pages(dir, i);
         }
     }
 
@@ -60,7 +60,7 @@ static void print_pages(page_directory_t *dir, int table_index ) {
     for(int i=0; i< 1024; i++) {
 	if(table->pages[i].present) {
 	    print_string("virual address of : ");
-	    print_hex(table_index*i*0x1000);
+	    print_hex(table_index*0x400000+i*0x1000);
 	    print_string(" mapped to physical address: ");
 	    print_hex((u32_t)table->pages[i].frame*0x1000);
 	    print_string("\n");
@@ -182,7 +182,7 @@ void init_paging() {
 	alloc_frame(get_page(h,1,kernel_directory),0,0);
 	h += 0x1000;
     }
-    print_tables_serial(kernel_directory);
+    print_serial_tables(kernel_directory);
     register_interrupt_handler(14,&page_fault);
     switch_page_directory(kernel_directory);
     kheap = create_heap(KHEAP_START,KHEAP_START+KHEAP_INITIAL_SIZE,0xCFFFF000,0,0);
@@ -296,4 +296,14 @@ static page_table_t *clone_table(page_table_t *src, u32_t *phys) {
 	copy_page_physical(src->pages[i].frame*0x1000,table->pages[i].frame*0x1000);
     }
     return table;
+}
+
+
+u32_t get_physical_address(u32_t virtual_address, page_directory_t *dir) {
+    u32_t table_index = virtual_address / 0x400000;
+    u32_t page_index = virtual_address % 0x1000;
+    ASSERT(dir->page_tables[table_index]->pages[page_index].present > 0);
+    u32_t physical_address = 0;
+    physical_address = dir->page_tables[table_index]->pages[page_index].frame * 0x1000 + (virtual_address & 0xFFF);
+    return physical_address;
 }

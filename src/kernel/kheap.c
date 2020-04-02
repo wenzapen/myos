@@ -53,19 +53,20 @@ static void expand(u32_t new_size, heap_t *heap) {
 
 static u32_t kmalloc_internal(u32_t size, int align, u32_t* phys) {
     if(kheap != 0) {
-	print_string("before alloc on heap!\n");
+	print_serial_string("before alloc on heap!\n");
 	void *addr = alloc(size, (u8_t)align, kheap);
-	print_string("after alloc on heap! addr is: ");
-	print_hex((u32_t)addr);
+	print_serial_string("after alloc on heap! addr is: ");
+	print_serial_hex((u32_t)addr);
 	print_char('\n');
 	if(phys != 0) {
-	    page_t *page = get_page((u32_t)addr, 0, kernel_directory);
-	    *phys = page->frame*0x1000 + (u32_t)addr&0xFFF;
-	print_string("phy addr is: ");
-	print_hex((u32_t)phys);
-	print_string(" *phy is: ");
-	print_hex(*phys);
-	print_char('\n');
+//	    page_t *page = get_page((u32_t)addr, 0, kernel_directory);
+//	    *phys = page->frame*0x1000 + (u32_t)addr&0xFFF;
+	    *phys = get_physical_address((u32_t)addr, kernel_directory);
+	print_serial_string("phy addr is: ");
+	print_serial_hex((u32_t)phys);
+	print_serial_string(" *phy is: ");
+	print_serial_hex(*phys);
+	print_serial_string("\n");
 	}
 	return (u32_t)addr;
     } else {

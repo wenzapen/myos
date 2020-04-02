@@ -1,4 +1,5 @@
 #include "task.h"
+#include "paging.h"
 #include "kheap.h"
 #include "../common/utils.h"
 
@@ -36,6 +37,7 @@ void move_stack(void *new_stack_start, u32_t size) {
 	alloc_frame(get_page(i,1,current_directory), 0, 1);
     }
 //    print_string("Inside move_stack: after alloc_frame\n");
+    print_serial_tables(current_directory);
     u32_t pd_addr;
     asm volatile("mov %%cr3, %0":"=r"(pd_addr));
     asm volatile("mov %0, %%cr3": : "r"(pd_addr));

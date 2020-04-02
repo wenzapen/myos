@@ -203,22 +203,22 @@ void init_serial() {
     serial_configure_modem(SERIAL_COM1_BASE);
 
 }
-void write_serial_char(char character) {
+void print_serial_char(char character) {
     while(!serial_is_transmit_fifo_empty(SERIAL_COM1_BASE)) ;
     outb(SERIAL_DATA_PORT(SERIAL_COM1_BASE), character);
 
 }
 
-void write_serial_string(char *str) {
+void print_serial_string(char *str) {
     char * s = str;
     while(*s != 0) {
-	write_serial_char(*s);
+	print_serial_char(*s);
 	s++;
     }
 }
 
 
-void write_serial_decimal(s32_t n) {
+void print_serial_decimal(s32_t n) {
     char str[35];
     int negative = 0;
     if(n < 0) {
@@ -245,10 +245,10 @@ void write_serial_decimal(s32_t n) {
 	str2[j++] = str[i--];
     } 
     str2[j] = '\0';
-    write_serial_string(str2);
+    print_serial_string(str2);
 }
 
-void write_serial_hex(u32_t n) {
+void print_serial_hex(u32_t n) {
     char str[35];
     int i=0;
     int h=0; 
@@ -256,7 +256,7 @@ void write_serial_hex(u32_t n) {
 	str[0]='0';
 	str[1]='x';
 	str[2]='0';
-	write_serial_string(str);
+	print_serial_string(str);
 	return;
     }
     while(n != 0) {
@@ -279,5 +279,5 @@ void write_serial_hex(u32_t n) {
 	str2[j++] = str[i--];
     } 
     str2[j] = '\0';
-    write_serial_string(str2);
+    print_serial_string(str2);
 }

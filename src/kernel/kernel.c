@@ -46,7 +46,7 @@ int main(multiboot_info_t *multiboot_info, u32_t initial_stack) {
     placement_address = initrd_end;
 //    start_program();
     init_paging();
-//    init_task();
+    init_task();
 /*    u32_t b = kmalloc(8);
     print_string("b: ");
     print_hex(b);
