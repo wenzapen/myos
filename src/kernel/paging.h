@@ -31,6 +31,7 @@ void page_fault(registers_t regs);
 void alloc_frame(page_t *page, int is_kernel, int is_writeable);
 page_directory_t *clone_directory(page_directory_t *src);
 void print_serial_tables(page_directory_t *dir);
+void print_serial_pages(page_directory_t *dir, int table_index);
 u32_t get_physical_address(u32_t virtual_address, page_directory_t *dir); 
 
 #endif

@@ -53,20 +53,42 @@ static void expand(u32_t new_size, heap_t *heap) {
 
 static u32_t kmalloc_internal(u32_t size, int align, u32_t* phys) {
     if(kheap != 0) {
-	print_serial_string("before alloc on heap!\n");
 	void *addr = alloc(size, (u8_t)align, kheap);
-	print_serial_string("after alloc on heap! addr is: ");
+	print_serial_string("alloc on heap! virtual addr is: ");
 	print_serial_hex((u32_t)addr);
-	print_char('\n');
-	if(phys != 0) {
-//	    page_t *page = get_page((u32_t)addr, 0, kernel_directory);
-//	    *phys = page->frame*0x1000 + (u32_t)addr&0xFFF;
-	    *phys = get_physical_address((u32_t)addr, kernel_directory);
-	print_serial_string("phy addr is: ");
-	print_serial_hex((u32_t)phys);
-	print_serial_string(" *phy is: ");
-	print_serial_hex(*phys);
 	print_serial_string("\n");
+	if(phys != 0) {
+	    print_serial_string("kernel_dir addr is: ");
+	    print_serial_hex((u32_t)kernel_directory);
+	    print_serial_string("\n");
+//	    print_serial_string("#####################################\n");
+//	    print_serial_tables(kernel_directory);
+	    page_t *page = get_page((u32_t)addr, 0, kernel_directory);
+	    print_serial_string(" Page content for address: ");
+	    print_serial_hex((u32_t)addr);
+	    print_serial_string(" is : ");
+	    print_serial_hex(*(u32_t *)page);
+	    print_serial_string("\n");
+	    print_serial_string("Page frame for address: ");
+	    print_serial_hex((u32_t)addr);
+	    print_serial_string(" is : ");
+	    print_serial_hex(page->frame);
+	    print_serial_string("\n");
+	    print_serial_string("Page addr&0xFFF for address: ");
+	    print_serial_hex((u32_t)addr);
+	    print_serial_string(" is : ");
+	    u32_t t = 0x0 & 0xFFF;
+	    print_serial_hex(0x0);
+	    print_hex(t);
+	    print_serial_string("\n");
+
+	    print_serial_string("page####################################\n");
+	    print_serial_pages(kernel_directory,(u32_t)addr/0x400000);
+	    *phys = page->frame*0x1000;
+//	    *phys = get_physical_address((u32_t)addr, kernel_directory);
+	    print_serial_string("physical addr is: ");
+	    print_serial_hex(*phys);
+	    print_serial_string("\n");
 	}
 	return (u32_t)addr;
     } else {

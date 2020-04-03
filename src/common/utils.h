@@ -11,6 +11,7 @@ void print_serial_char(char character);
 void print_serial_string(char *str);
 void print_serial_decimal(s32_t n);
 void print_serial_hex(u32_t n);
+void init_serial();
 
 void panic(const char* message, const char* file, u32_t line);
 void panic_assert(const char* file, u32_t line, const char* desc);
