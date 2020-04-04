@@ -1,8 +1,7 @@
 Next at t=0
 (0) [0x00000000fffffff0] f000:fff0 (unk. ctxt): jmp far f000:e05b         ; ea5be000f0
 continue
-(0).[1130047900] ??? (physical address not available)
-Next at t=1130047901
-(0) [0x00000000fffffff0] f000:fff0 (unk. ctxt): jmp far f000:e05b         ; ea5be000f0
+Next at t=2786739420
+(0) [0x00000000001020d7] 0008:00000000001020d7 (unk. ctxt): jmp .-2 (0x001020d7)      ; ebfe
 <bochs:1> quit
-(0).[1130047901] [0x00000000fffffff0] f000:fff0 (unk. ctxt): jmp far f000:e05b         ; ea5be000f0
+(0).[2786739420] [0x00000000001020d7] 0008:00000000001020d7 (unk. ctxt): jmp .-2 (0x001020d7)      ; ebfe

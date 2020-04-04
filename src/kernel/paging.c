@@ -43,9 +43,9 @@ void print_serial_tables(page_directory_t * dir) {
             print_serial_string("virual address of : ");
             print_serial_hex(i*0x400000);
             print_serial_string(" table virtual address: ");
-            print_serial_hex((u32_t)dir->page_tables[i]);
+            print_serial_hex((u32_t)&dir->page_tables[i]);
             print_serial_string(" table physical address: ");
-            print_serial_hex(*(u32_t *)dir->tables_physical[i]);
+            print_serial_hex(dir->tables_physical[i]);
             print_serial_string("\n");
             print_serial_string("#########################\n");
             print_serial_pages(dir, i);
@@ -190,6 +190,8 @@ void init_paging() {
     switch_page_directory(kernel_directory);
     kheap = create_heap(KHEAP_START,KHEAP_START+KHEAP_INITIAL_SIZE,0xCFFFF000,0,0); 
     current_directory = clone_directory(kernel_directory);
+    print_serial_string("/////////////////////////////////////current_dir///////\n");
+    print_serial_tables(current_directory);
     switch_page_directory(current_directory);
 }
 
@@ -265,20 +267,26 @@ void page_fault(registers_t regs) {
 page_directory_t *clone_directory(page_directory_t *src) {
     u32_t phys;
     page_directory_t *dir = (page_directory_t *)kmalloc_ap(sizeof(page_directory_t), &phys);
-	    print_serial_string("Clone dir. Dir virtual address: ");
-	    print_serial_hex((u32_t)dir);
-	    print_serial_string(" Physical address: ");
-	    print_serial_hex(phys);
-	    print_serial_string("\n");
+    print_serial_string("Clone dir. Dir virtual address: ");
+    print_serial_hex((u32_t)dir);
+    print_serial_string(" Physical address: ");
+    print_serial_hex(phys);
+    print_serial_string("\n");
     memset((u8_t *)dir, 0, sizeof(page_directory_t));
-    u32_t offset = (u32_t)&dir->tables_physical - (u32_t)&dir;
+    u32_t offset = (u32_t)&dir->tables_physical - (u32_t)dir;
     dir->physical_addr = phys + offset;
+    print_serial_string("offset: ");
+    print_serial_hex(offset);
+    print_serial_string(" pageTable Physical address: ");
+    print_serial_hex(dir->physical_addr);
+    print_serial_string("\n");
 
     //clone page_tables
-    for(int i=0; i<1023; i++) {
+    for(int i=0; i<1024; i++) {
 	if(!src->page_tables[i])
 	    continue;
 	if(kernel_directory->page_tables[i] == src->page_tables[i]) {
+	    print_serial_string("Copy kernel tables .\n ");
 	    dir->page_tables[i] = src->page_tables[i];
 	    dir->tables_physical[i] = src->tables_physical[i]; 
 	} else {
