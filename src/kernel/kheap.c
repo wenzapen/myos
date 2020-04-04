@@ -77,14 +77,12 @@ static u32_t kmalloc_internal(u32_t size, int align, u32_t* phys) {
 	    print_serial_string("Page addr&0xFFF for address: ");
 	    print_serial_hex((u32_t)addr);
 	    print_serial_string(" is : ");
-	    u32_t t = 0x0 & 0xFFF;
-	    print_serial_hex(0x0);
-	    print_hex(t);
+	    print_serial_hex((u32_t)addr & 0xFFF);
 	    print_serial_string("\n");
 
 	    print_serial_string("page####################################\n");
 	    print_serial_pages(kernel_directory,(u32_t)addr/0x400000);
-	    *phys = page->frame*0x1000;
+	    *phys = page->frame*0x1000+ ((u32_t)addr & 0xFFF);
 //	    *phys = get_physical_address((u32_t)addr, kernel_directory);
 	    print_serial_string("physical addr is: ");
 	    print_serial_hex(*phys);

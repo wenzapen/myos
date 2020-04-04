@@ -515,7 +515,7 @@ get page index for address: 0xC00FF
  Make page_table, table address is: 0x117000 page address is: 0x1173FC
 get page index for address: 0xC0100
  Make page_table, table address is: 0x117000 page address is: 0x117400
-Virtual address: 0x0711
+Virtual address: 0x0
 To allocate table. physical address: 0x118000
  Make page_table, table virtual address is: 0x118000 table physial address is: 0x118007 page address is: 0x118000
 get page index for address: 0x1
@@ -1599,7 +1599,7 @@ kernel_dir addr is: 0x114000
 get page index for address: 0xC0081
  Make page_table, table address is: 0x117000 page address is: 0x117204 Page content for address: 0xC0081000 is : 0x19B005
 Page frame for address: 0xC0081000 is : 0x19B
-Page addr&0xFFF for address: 0xC0081000 is : 0x01800øı
+Page addr&0xFFF for address: 0xC0081000 is : 0x0
 page####################################
 virual address of : 0xC0000000 mapped to physical address: 0x11A065
 virual address of : 0xC0001000 mapped to physical address: 0x11B065

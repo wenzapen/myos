@@ -70,10 +70,7 @@ void print_hex(u32_t n) {
     int i=0;
     int h=0; 
     if(n==0) {
-	str[0]='0';
-	str[1]='x';
-	str[2]='0';
-	print_string(str);
+	print_string("0x0");
 	return;
     }
     while(n != 0) {
@@ -253,10 +250,7 @@ void print_serial_hex(u32_t n) {
     int i=0;
     int h=0; 
     if(n==0) {
-	str[0]='0';
-	str[1]='x';
-	str[2]='0';
-	print_serial_string(str);
+	print_serial_string("0x0");
 	return;
     }
     while(n != 0) {
