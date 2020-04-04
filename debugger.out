@@ -1,7 +1,7 @@
 Next at t=0
 (0) [0x00000000fffffff0] f000:fff0 (unk. ctxt): jmp far f000:e05b         ; ea5be000f0
 continue
-Next at t=2786739420
-(0) [0x00000000001020d7] 0008:00000000001020d7 (unk. ctxt): jmp .-2 (0x001020d7)      ; ebfe
+Next at t=1355456830
+(0) [0x0000000000101ffd] 0008:0000000000101ffd (unk. ctxt): jmp .-2 (0x00101ffd)      ; ebfe
 <bochs:1> quit
-(0).[2786739420] [0x00000000001020d7] 0008:00000000001020d7 (unk. ctxt): jmp .-2 (0x001020d7)      ; ebfe
+(0).[1355456830] [0x0000000000101ffd] 0008:0000000000101ffd (unk. ctxt): jmp .-2 (0x00101ffd)      ; ebfe

@@ -44,32 +44,19 @@ int main(multiboot_info_t *multiboot_info, u32_t initial_stack) {
     typedef void (*call_module_t)(void);
     call_module_t start_program = (call_module_t)module_addr;
     placement_address = initrd_end;
-//    start_program();
     init_paging();
     init_task();
-/*    u32_t b = kmalloc(8);
-    print_string("b: ");
-    print_hex(b);
-    print_string("\n");
-    u32_t c = kmalloc(8);
-    print_string("c: ");
-    print_hex(c);
-    print_string("\n");
-*/ 
-//   asm volatile("int $3");
- //   u32_t *p = (u32_t*)0xA0000000;
-//    u32_t do_page_fault = *p;
 
-    fs_node_t *fs_root = init_initrd(initrd_location);
-/*    int ret=fork();
-    print_string("fork() returned ");
-    print_hex(ret);
-    print_string(" , and getpid() returned ");
-    print_hex(get_pid());
-    print_string("\n");
-*/
+    fs_root = init_initrd(initrd_location);
+    int ret=fork();
+    print_serial_string("fork() returned ");
+    print_serial_hex(ret);
+    print_serial_string(" , and getpid() returned ");
+    print_serial_hex(get_pid());
+    print_serial_string("\n");
+
     asm volatile("cli");
-//    print_fs(fs_root);
+    print_serial_fs(fs_root);
     asm volatile("sti");
     while(1) ;
     return 1;

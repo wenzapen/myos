@@ -20,5 +20,6 @@ typedef struct {
 
 fs_node_t *init_initrd(u32_t location);
 void print_fs(fs_node_t *node);
+void print_serial_fs(fs_node_t *node);
 void print_node(fs_node_t *node);
 #endif

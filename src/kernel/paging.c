@@ -38,6 +38,9 @@ void print_serial_pages(page_directory_t *dir, int table_index ) {
     }
 }
 void print_serial_tables(page_directory_t * dir) {
+    print_serial_string("Page directory: ");
+    print_serial_hex(dir->physical_addr);
+    print_serial_string("\n");
     for(int i=0; i<1024; i++) {
         if(dir->page_tables[i]) {
             print_serial_string("virual address of : ");
@@ -122,11 +125,6 @@ static u32_t first_unused_frame() {
 void alloc_frame(page_t *page, int is_kernel, int is_writeable) {
     if(page->frame != 0) return;
     u32_t index = first_unused_frame();
-    print_string("alloc frame for page: ");
-    print_hex((u32_t)page);
-    print_string(" frame index is: ");
-    print_hex(index);
-    print_char('\n'); 
     if(index==(u32_t)-1) {
 	print_string("No free frames!\n");
 	return;
@@ -155,11 +153,6 @@ void init_paging() {
     kernel_directory = (page_directory_t*)kmalloc_a(sizeof(page_directory_t));
     mem_set((u8_t *)kernel_directory, 0, sizeof(page_directory_t));
     kernel_directory->physical_addr = (u32_t)kernel_directory->tables_physical;
-    print_serial_string("Initial kernel_directory virtual address: ");
-    print_serial_hex((u32_t)kernel_directory);
-    print_serial_string(" Size of kernel_directory: ");
-    print_serial_hex((u32_t)sizeof(page_directory_t));
-    print_serial_string("\n ");
 //setup page table for Kheap 
     u32_t h = KHEAP_START;
     if(h & 0x00000FFF) {
@@ -191,7 +184,7 @@ void init_paging() {
     kheap = create_heap(KHEAP_START,KHEAP_START+KHEAP_INITIAL_SIZE,0xCFFFF000,0,0); 
     current_directory = clone_directory(kernel_directory);
     print_serial_string("/////////////////////////////////////current_dir///////\n");
-    print_serial_tables(current_directory);
+    //print_serial_tables(current_directory);
     switch_page_directory(current_directory);
 }
 
@@ -205,47 +198,15 @@ void switch_page_directory(page_directory_t *dir) {
 }
 
 page_t* get_page(u32_t address, int make, page_directory_t *dir) {
-/*    print_string("\n");
-    print_serial_string("get page index for address: ");
-    print_serial_hex(address);
-    print_serial_string("\n");
-*/    address /= 0x1000;
+    address /= 0x1000;
     u32_t table_index = address/1024;
-/*    print_serial_string("table index for address: ");
-    print_serial_hex(address);
-    print_serial_string("  is: ");
-    print_serial_hex(table_index);
-    print_serial_string("table address  is: ");
-    print_serial_hex((u32_t)dir->page_tables[table_index]);
-*/    print_serial_string("\n");
     if(dir->page_tables[table_index]) {
-    print_serial_string("get page index for address: ");
-    print_serial_hex(address);
-    print_serial_string("\n");
-    print_serial_string(" Make page_table, table address is: ");
-    print_serial_hex((u32_t)dir->page_tables[table_index]);
-    print_serial_string(" page address is: ");
-    print_serial_hex((u32_t)&dir->page_tables[table_index]->pages[address%1024]);
-    print_char('\n');
 	return &dir->page_tables[table_index]->pages[address%1024];
     } else if(make) {
 	u32_t tmp;
 	dir->page_tables[table_index] = (page_table_t*)kmalloc_ap(sizeof(page_table_t), &tmp);
 	mem_set((u8_t *)dir->page_tables[table_index],0,0x1000);
 	dir->tables_physical[table_index] = tmp|0x7;
-    	print_serial_string("Virtual address: ");
-    	print_serial_hex(address);
-    	print_serial_string("\n");
-    	print_serial_string("To allocate table. physical address: ");
-    	print_serial_hex(tmp);
-    	print_serial_string("\n");
-    	print_serial_string(" Make page_table, table virtual address is: ");
-    	print_serial_hex((u32_t)dir->page_tables[table_index]);
-    	print_serial_string(" table physial address is: ");
-    	print_serial_hex((u32_t)dir->tables_physical[table_index]);
-    	print_serial_string(" page address is: ");
-    	print_serial_hex((u32_t)&dir->page_tables[table_index]->pages[address%1024]);
-    	print_char('\n');
 	return &dir->page_tables[table_index]->pages[address%1024];
 	
     } else {

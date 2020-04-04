@@ -80,8 +80,8 @@ static u32_t kmalloc_internal(u32_t size, int align, u32_t* phys) {
 	    print_serial_hex((u32_t)addr & 0xFFF);
 	    print_serial_string("\n");
 
-	    print_serial_string("page####################################\n");
-	    print_serial_pages(kernel_directory,(u32_t)addr/0x400000);
+//	    print_serial_string("page####################################\n");
+//	    print_serial_pages(kernel_directory,(u32_t)addr/0x400000);
 	    *phys = page->frame*0x1000+ ((u32_t)addr & 0xFFF);
 //	    *phys = get_physical_address((u32_t)addr, kernel_directory);
 	    print_serial_string("physical addr is: ");
@@ -126,12 +126,12 @@ u32_t kmalloc_ap(u32_t size, u32_t* phys) {
 
 static s32_t find_smallest_hole(u32_t size, u8_t page_align, heap_t *heap) {
     int i=0;
-    print_string("heap->index.size is : ");
+/*    print_string("heap->index.size is : ");
     print_hex(heap->index.size);
     print_string("   page_align: ");
     print_hex(page_align);
     print_char('\n');
-    while(i < heap->index.size) {
+*/    while(i < heap->index.size) {
 //	print_string("Inside find smallest hole: before lookup_order \n");
 	header_t *header = (header_t *)lookup_ordered_array(i, &heap->index);
 	if(page_align > 0) {
@@ -149,12 +149,12 @@ static s32_t find_smallest_hole(u32_t size, u8_t page_align, heap_t *heap) {
 	    if(((location+sizeof(header_t)) & 0x00000FFF) != 0) {
 		offset = 0x1000 - ((location+sizeof(header_t)) & 0x00000FFF);
 		s32_t hole_size = (s32_t)header->size - offset;
-		print_string("after alignment, hole_size: ");
+/*		print_string("after alignment, hole_size: ");
 		print_decimal(hole_size);
 		print_string(" requried size: ");
 		print_decimal(size);
 		print_char('\n');
-		if(hole_size >= (s32_t)size)
+*/		if(hole_size >= (s32_t)size)
 		    break;	
 	    } 
 
@@ -163,10 +163,10 @@ static s32_t find_smallest_hole(u32_t size, u8_t page_align, heap_t *heap) {
 		break;
 	} 
     i++;
-    print_string("hole number i: ");
+/*    print_string("hole number i: ");
     print_decimal(i);
     print_string("\n");
-	
+*/	
     }
     if(i >= heap->index.size) {
 	return -1;
@@ -255,7 +255,7 @@ void *alloc(u32_t size, u8_t page_align, heap_t *heap) {
     print_hex(orig_hole_pos);
 */    print_char('\n');
     if(page_align && ((orig_hole_pos+sizeof(header_t)) & 0x00000FFF)) {
-	print_string("page_align is required.\n");
+//	print_string("page_align is required.\n");
 	u32_t new_location = orig_hole_pos + 0x1000 - (orig_hole_pos&0xFFF) - sizeof(header_t);
 	header_t *hole_header = (header_t *)orig_hole_pos;
 	hole_header->size = 0x1000-(orig_hole_pos&0xFFF)-sizeof(header_t);

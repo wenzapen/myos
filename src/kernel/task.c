@@ -13,18 +13,28 @@ extern u32_t read_eip();
 
 u32_t next_pid = 1;
 
+void print_serial_task(task_t *task) {
+    print_serial_string("Task address: ");
+    print_serial_hex((u32_t)task);
+    print_serial_string("\n");
+}
+
 void init_task() {
 //    print_string("Initialising tasking!\n");
     asm volatile("cli");
 //    print_string("Before moving stack!\n");
     move_stack((void *)0xE0000000, 0x4000); 
-//    print_string("After moving stack!\n");
+    print_string("After moving stack!\n");
     current_task = ready_queue = (task_t *)kmalloc(sizeof(task_t));
+    print_serial_task(current_task);
     current_task->id = next_pid++;
     current_task->esp = current_task->ebp = 0;
     current_task->eip = 0;
     current_task->page_directory = current_directory;
     current_task->next = 0;
+    print_serial_string("eip is : ");
+    print_serial_hex(read_eip());
+    print_serial_string("\n");
     asm volatile("sti");
 
 
@@ -36,7 +46,7 @@ void move_stack(void *new_stack_start, u32_t size) {
     for(i=(u32_t)new_stack_start; i>=((u32_t)new_stack_start-size); i-=0x1000) {
 	alloc_frame(get_page(i,1,current_directory), 0, 1);
     }
-//    print_string("Inside move_stack: after alloc_frame\n");
+    print_serial_string("Print current_directory: after alloc_frame\n");
     print_serial_tables(current_directory);
     u32_t pd_addr;
     asm volatile("mov %%cr3, %0":"=r"(pd_addr));
@@ -52,6 +62,8 @@ void move_stack(void *new_stack_start, u32_t size) {
     u32_t new_esp = old_esp + offset;
     u32_t new_ebp = old_ebp + offset;
 
+    print_serial_string("Print current_directory: after reload current_directory\n");
+    print_serial_tables(current_directory);
     memcpy((void *)new_esp, (void *)old_esp, initial_esp-old_esp);
     
     for(i=(u32_t)new_stack_start; i >(u32_t)new_stack_start-size; i-=4) {

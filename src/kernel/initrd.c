@@ -49,6 +49,11 @@ static fs_node_t *initrd_finddir(fs_node_t *node, char *name) {
 }
 
 fs_node_t *init_initrd(u32_t location) {
+    print_serial_string("start to init initrd.\n");
+    print_serial_string("Location of initrd: ");
+    print_serial_hex(location);
+    print_serial_string("\n");
+    
     initrd_header = (initrd_header_t *)location;
     file_headers = (initrd_file_header_t *)(location+sizeof(initrd_header_t));
 //initialise root directory
@@ -110,6 +115,15 @@ void print_node(fs_node_t *node) {
     print_hex(node->flags);
     print_char('\n');
 }
+//only print one node
+void print_serial_node(fs_node_t *node) {
+    print_serial_string("Node name is: ");
+    print_serial_string(node->name);
+    print_serial_char('\n');
+    print_serial_string("Node flag is: ");
+    print_serial_hex(node->flags);
+    print_serial_char('\n');
+}
 
 //print the whole directory
 void print_fs(fs_node_t *fs_root) {
@@ -128,6 +142,28 @@ void print_fs(fs_node_t *fs_root) {
 	    char *buf;
 	    read_fs(fsnode,0,256,buf);
 	    print_string(buf);
+        }
+	i++;
+    }
+
+}
+//print the whole directory
+void print_serial_fs(fs_node_t *fs_root) {
+    int i=0;
+    struct dirent *node = 0;
+    while((node=initrd_readdir(fs_root,i))!=0) {
+	print_serial_string("Found file ");
+	print_serial_string(node->name);
+	print_serial_char('\n');
+	fs_node_t *fsnode = finddir_fs(fs_root,node->name);
+	print_serial_node(fsnode);
+	if((fsnode->flags&0x7)==FS_DIRECTORY)
+	    print_serial_string("\n(directory)\n");
+	else {
+	    print_serial_string("\ncontents: ");
+	    char *buf;
+	    read_fs(fsnode,0,256,buf);
+	    print_serial_string(buf);
         }
 	i++;
     }
